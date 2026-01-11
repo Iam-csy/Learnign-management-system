@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Notes Download</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Notes CSS -->
+  <link rel="stylesheet" href="/css/note.css">
+</head>
+
+<body>
+    <%- include('includes/header.ejs') %>
+<div class="notes-container">
+    
+    <!-- CARD 1 -->
+    <div class="note-card" onclick="downloadFile('notes/ceh.pdf')">
+     <div class="note-left">
+      <img src="https://cdn-icons-png.flaticon.com/512/924/924915.png">
+    </div>
+
+    <div class="note-center">
+    <h3>Ethical Hacking</h3>
+    <p>Ethical hacking, SOC operations, digital forensics basics.</p>
+  </div>
+
+  <div class="note-right">
+    <button onclick="event.stopPropagation(); downloadFile('notes/ceh.pdf')">
+      DOWNLOAD
+    </button>
+  </div>
+</div>
+<!-- CARD 2 -->
+    <div class="note-card" onclick="downloadFile('notes/network-security.pdf')">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/924/924915.png" alt="Network">
+        </div>
+
+        <div class="note-center">
+            <h3>Basic Networking</h3>
+            <p>Ethical hacking, SOC operations, digital forensics basics.</p>
+        </div>
+
+        <div class="note-right">
+            <a href="/notes/basic-networking.pdf" download
+   style="padding:12px 20px;background:#2563eb;color:white;border-radius:6px;display:inline-block;">
+  DOWNLOAD
+</a>
+        </div>
+    </div>
+
+    <!-- CARD 3 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>CCNA</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+
+        <div class="note-right">
+          <button onclick="event.stopPropagation(); downloadFile('notes/ceh.pdf')">
+      DOWNLOAD
+    </button>
+        </div>
+    </div>
+
+    <!-- CARD 4-->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/924/924915.png" alt="Malware">
+        </div>
+
+        <div class="note-center">
+            <h3>Aws Associate</h3>
+            <p>Threat analysis and detection techniques.</p>
+        </div>
+
+        <div class="note-right">
+            <button onclick="event.stopPropagation(); downloadFile('notes/ceh.pdf')">
+      DOWNLOAD
+    </button>
+        </div>
+    </div>
+<!-- CARD 5 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>RHCA</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+
+        <div class="note-right">
+            <button onclick="event.stopPropagation(); downloadFile('notes/ceh.pdf')">
+      DOWNLOAD
+    </button>
+        </div>
+    </div>
+<!-- CARD 6 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>RHCSA</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+
+        <div class="note-right">
+            <button onclick="event.stopPropagation(); downloadFile('notes/ceh.pdf')">
+      DOWNLOAD
+    </button>
+        </div>
+    </div>
+<!-- CARD 7 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>AWS Security</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+        <div class="note-right">
+            <button onclick="event.stopPropagation(); downloadFile('notes/ceh.pdf')">
+      DOWNLOAD
+    </button>
+        </div>
+    </div>
+
+<!-- CARD 9 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>Azure</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+
+        <div class="note-right">
+            <button onclick="downloadFile('notes/azure security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+
+<!-- CARD 10 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>EJPT</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+
+<!-- CARD 11 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>DS</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+<!-- CARD 12 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>DA</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+<!---13-->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>ML</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+<!-- CARD 14 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>IOT</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+<!-- CARD 15 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>Python</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+<!-- CARD 16 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>c/c++</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+<!-- CARD 17 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>Digital Forensics</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+<!-- CARD 18 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>CTIA/CSA</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+<!-- CARD 19 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>Incident Handling</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+<!-- CARD 20-->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>Fortinet/Palo Alto</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+<!-- CARD 21 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>Block-chain</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+<!-- CARD 22 -->
+    <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>Devops</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+    <!-- card 23 -->
+         <div class="note-card">
+        <div class="note-left">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064195.png" alt="Digital">
+        </div>
+
+        <div class="note-center">
+            <h3>Basic linux</h3>
+            <p>Cyber defense, real-world security practices.</p>
+        </div>
+        <div class="note-right">
+            <button onclick="downloadFile('notes/digital-security.pdf')">DOWNLOAD</button>
+        </div>
+    </div>
+    
+
+</div>
+<%- include('includes/footer') %>
+<script src="/js/notes.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cybersecurity</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/home12.css">
+
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+
+
+
+<body class="font-inter antialiased">
+    <%- include('includes/preloader') %>
+    
+    <%- include('includes/header.ejs') %>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <section class="hero-section" id="heroScene">
+        <div class="particles-container" id="particles"></div>
+        <div class="cyber-grid"></div>
+        <div class="fog-overlay"></div>
+        <div class="scanlines"></div>
+        
+        <div class="hud-corner top-left"></div>
+        <div class="hud-corner bottom-right"></div>
+
+        <div class="hero-content">
+            <div class="glitch-wrapper">
+                <h1 class="codevirus-title">
+                    <span class="char">C</span>
+                    <span class="char">o</span>
+                    <span class="char">d</span>
+                    <span class="char">e</span>
+                    <span class="char highlight">V</span>
+                    <span class="char highlight">i</span>
+                    <span class="char highlight">r</span>
+                    <span class="char highlight">u</span>
+                    <span class="char highlight">s</span>
+                </h1>
+            </div>
+
+            <div class="tagline-wrapper">
+                <div class="tech-bracket">[</div>
+                <div class="cyber-line"></div>
+                <p class="tagline">System initialized</p> <div class="cyber-line"></div>
+                <div class="tech-bracket">]</div>
+            </div>
+        </div>
+    </section>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+    /* --- BASE SETUP --- */
+    .hero-section {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        background-color: #050505;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Orbitron', sans-serif;
+        perspective: 1000px; /* Crucial for 3D */
+    }
+
+    /* --- 1. PARTICLE SYSTEM (Data Dust) --- */
+    .particles-container {
+        position: absolute;
+        width: 100%; height: 100%;
+        z-index: 1;
+        pointer-events: none;
+    }
+    .data-dot {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        opacity: 0;
+        box-shadow: 0 0 4px #4f9aff;
+    }
+
+    /* --- 2. BACKGROUND LAYERS --- */
+    .cyber-grid {
+        position: absolute;
+        width: 300%; height: 300%;
+        background-image: 
+            linear-gradient(rgba(0, 140, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 140, 255, 0.1) 1px, transparent 1px);
+        background-size: 80px 80px;
+        transform: rotateX(60deg) translateY(-150px) translateZ(-400px);
+        animation: gridMove 20s linear infinite;
+        z-index: 0;
+        mask-image: radial-gradient(circle at center, black 0%, transparent 80%); /* Fade edges */
+    }
+
+    .fog-overlay {
+        position: absolute;
+        width: 100%; height: 100%;
+        background: radial-gradient(circle at 50% 50%, transparent 0%, #000000 90%);
+        z-index: 2;
+    }
+
+    .scanlines {
+        position: absolute;
+        width: 100%; height: 100%;
+        background: repeating-linear-gradient(to bottom, transparent 0px, transparent 2px, rgba(0,0,0,0.3) 3px);
+        z-index: 5;
+        pointer-events: none;
+    }
+
+    /* --- 3. HUD CORNERS --- */
+    .hud-corner {
+        position: absolute;
+        width: 150px; height: 150px;
+        border: 2px solid rgba(0, 140, 255, 0.3);
+        z-index: 4;
+        opacity: 0; /* Animated in */
+    }
+    .top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+    .bottom-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
+    /* --- 4. TEXT & TYPOGRAPHY --- */
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        transform-style: preserve-3d;
+    }
+
+    .codevirus-title {
+        font-size: clamp(3rem, 10vw, 9rem);
+        margin: 0;
+        line-height: 1;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -2px;
+        display: flex;
+        justify-content: center;
+        gap: 2px;
+        filter: drop-shadow(0 0 15px rgba(0,100,255,0.3));
+    }
+
+    .char {
+        display: inline-block;
+        color: rgba(255,255,255,0.1);
+        /* LIQUID ENERGY GRADIENT */
+        background: linear-gradient(135deg, #ffffff 10%, #4facfe 40%, #00f2fe 60%, #ffffff 90%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transform-style: preserve-3d;
+        opacity: 0;
+    }
+    
+    .char.highlight {
+        background: linear-gradient(135deg, #ffffff 10%, #a18cd1 40%, #fbc2eb 60%, #ffffff 90%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Subtitle Tech Design */
+    .tagline-wrapper {
+        margin-top: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        opacity: 0;
+    }
+
+    .tagline {
+        color: #89c4ff;
+        font-size: clamp(0.8rem, 1.2vw, 1rem);
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        margin: 0;
+        font-family: 'Courier New', monospace; /* Monospace for tech feel */
+        font-weight: bold;
+    }
+
+    .cyber-line {
+        height: 1px;
+        width: 0px; 
+        background: linear-gradient(90deg, transparent, #00f2fe, transparent);
+        box-shadow: 0 0 8px #00f2fe;
+    }
+    
+    .tech-bracket {
+        color: #00f2fe;
+        font-size: 1.5rem;
+        font-weight: 300;
+        opacity: 0.7;
+    }
+
+    @keyframes gridMove {
+        0% { transform: rotateX(60deg) translateY(0) translateZ(-400px); }
+        100% { transform: rotateX(60deg) translateY(80px) translateZ(-400px); }
+    }
+</style>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        
+        // --- 1. PRELOADER LOGIC ---
+        const preloader = document.getElementById('preloader');
+
+        // 2.5 seconds fake loading
+        setTimeout(() => {
+            if(preloader) {
+                preloader.classList.add('loader-hidden');
+            }
+            
+            // Loader hatne ke baad Animations start karein
+            setTimeout(() => {
+                startSiteAnimations();
+            }, 500); 
+
+        }, 2500);
+
+
+        // --- 2. MAIN ANIMATION FUNCTION (Wrapper) ---
+        // Saara GSAP code is function ke andar hai
+        function startSiteAnimations() {
+            
+            console.log("Animations Started"); // Debugging ke liye
+
+            // --- PARTICLE SYSTEM ---
+            const particleContainer = document.getElementById('particles');
+            const particleCount = 100; // Performance ke liye thoda kam kiya (500 bahut heavy ho sakta hai)
+
+            if(particleContainer) {
+                for (let i = 0; i < particleCount; i++) {
+                    let dot = document.createElement('div');
+                    dot.classList.add('data-dot');
+                    particleContainer.appendChild(dot);
+                    
+                    let size = Math.random() * 4.5 + 0.5; 
+                    dot.style.width = size + 'px';
+                    dot.style.height = size + 'px';
+                    
+                    let startX = (Math.random() - 0.5) * window.innerWidth * 1.5;
+                    let startY = (Math.random() - 0.5) * window.innerHeight * 1.5;
+                    let startZ = Math.random() * -800 - 200;
+
+                    gsap.set(dot, { x: startX, y: startY, z: startZ, opacity: 0 });
+
+                    // Animation 1: Forward Z
+                    gsap.to(dot, {
+                        duration: Math.random() * 4 + 3,
+                        z: 600,
+                        ease: "none",
+                        repeat: -1,
+                        delay: Math.random() * 5,
+                        onRepeat: () => {
+                            gsap.set(dot, { 
+                                z: Math.random() * -800 - 200,
+                                x: (Math.random() - 0.5) * window.innerWidth * 1.5,
+                                y: (Math.random() - 0.5) * window.innerHeight * 1.5
+                            });
+                        }
+                    });
+
+                    // Animation 2: Wave Drift
+                    const driftRange = Math.random() * 150 + 50;
+                    gsap.to(dot, { x: `+=${driftRange}`, duration: Math.random() * 3 + 2, repeat: -1, yoyo: true, ease: "sine.inOut" });
+                    gsap.to(dot, { y: `+=${driftRange / 1.5}`, duration: Math.random() * 4 + 2.5, repeat: -1, yoyo: true, ease: "sine.inOut" });
+
+                    // Animation 3: Twinkle
+                    gsap.to(dot, { duration: Math.random() * 0.4 + 0.1, opacity: Math.random() * 0.9 + 0.1, repeat: -1, yoyo: true, ease: "steps(3)" });
+                }
+            }
+
+            // --- TEXT SEQUENCE ---
+            const tl = gsap.timeline();
+
+            gsap.set(".char", { z: -1500, opacity: 0, rotationX: 110, scale: 0.5 });
+            gsap.set(".hud-corner", { scale: 1.5, opacity: 0 });
+
+            tl.to(".hud-corner", { duration: 1, scale: 1, opacity: 1, ease: "power2.out" })
+              .to(".char", {
+                  duration: 2, z: 0, opacity: 1, rotationX: 0, scale: 1,
+                  ease: "elastic.out(1, 0.6)", stagger: { amount: 0.8, from: "center" }
+              }, "-=0.5")
+              .to(".char", {
+                  duration: 0.1,
+                  textShadow: "0 0 40px #fff, 0 0 80px #00f2fe",
+                  color: "#fff",
+                  "-webkit-text-fill-color": "#fff",
+                  repeat: 1, yoyo: true,
+                  ease: "steps(10)", stagger: 0.05
+              }, "-=1.5")
+              .to(".char", {
+                  backgroundPosition: "200% center", duration: 3, ease: "none", repeat: -1
+              }, "<")
+              .to(".tagline-wrapper", { opacity: 1 }, "-=1")
+              .to(".cyber-line", { width: "40px", duration: 0.5 })
+              .to(".tagline", { 
+                  duration: 1, text: "Learning Academy",
+                  onStart: function() {
+                      const tagEl = document.querySelector('.tagline');
+                      if(tagEl) {
+                          tagEl.innerText = "LMS INITIALIZED"; 
+                          setTimeout(() => tagEl.innerText = "LEARNING SYSTEM ONLINE", 300);
+                          setTimeout(() => tagEl.innerText = "ACADEMY", 800);
+                      }
+                  }
+              });
+
+            // --- FLOAT & GLITCH ---
+            gsap.to(".hero-content", { y: 20, rotationX: 10, duration: 4, repeat: -1, yoyo: true, ease: "sine.inOut" });
+
+            function triggerGlitch() {
+                gsap.to(".codevirus-title", {
+                    skewX: -40, duration: 0.09, yoyo: true, repeat: 1, ease: "power4.inOut",
+                    onComplete: () => {
+                        gsap.set(".codevirus-title", { skewX: 0 });
+                        setTimeout(triggerGlitch, Math.random() * 3000 + 1000);
+                    }
+                });
+            }
+            setTimeout(triggerGlitch, 4000);
+        }
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- upar animation lagna h  -->
+
+            <!-- ============================================ -->
+            <!-- SECTION 2: Cybersecurity Solutions -->
+            <!-- ============================================ -->
+            <section class="w-full bg-[#0f1623] py-16 md:py-24 lg:py-28">
+                <div class="max-w-[1200px] mx-auto px-6 sm:px-8 md:px-12">
+
+                    <!-- Section Header -->
+                    <div class="max-w-2xl mb-12 md:mb-16">
+                        <h2 class="text-3xl sm:text-4xl font-bold text-gray-100 leading-tight mb-5">
+                            Build a Career in Cybersecurity with Real-World Skills
+                        </h2>
+                        <p class="text-base text-gray-400 leading-relaxed">
+                            Learn from industry professionals with hands-on training in ethical hacking, cloud security,
+                            SOC
+                            operations, digital forensics, and advanced cyber defense.
+                        </p>
+                    </div>
+
+                    <!-- Solutions Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+
+                        <!-- Card 1 - SOC Managers -->
+                        <div class="bg-gray-50 rounded-2xl p-6 sm:p-8 border border-gray-100 float-card">
+                            <!-- Icon -->
+                            <div class="w-12 h-12 mb-5 flex items-center justify-center">
+                                <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                    </path>
+                                </svg>
+                            </div>
+
+                            <!-- Content -->
+                            <h3 class="text-xl font-semibold text-gray-800 mb-3">Cyber Tech Specialist (CTS)</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                A foundation-level cybersecurity program covering networking, Linux, ethical hacking,
+                                SOC
+                                basics, and security automation for beginners. </p>
+                        </div>
+
+                        <!-- Card 2 - Cloud SecOps -->
+                        <div class="bg-gray-50 rounded-2xl p-6 sm:p-8 border border-gray-100 float-card">
+                            <!-- Icon -->
+                            <div class="w-12 h-12 mb-5 flex items-center justify-center">
+                                <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4">
+                                    </path>
+                                </svg>
+                            </div>
+
+                            <!-- Content -->
+                            <h3 class="text-xl font-semibold text-gray-800 mb-3">Certified Cybersecurity Associate (CCA)
+                            </h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                A job-oriented program focused on ethical hacking, penetration testing, web security,
+                                and
+                                core cybersecurity skills..
+                            </p>
+                        </div>
+
+                        <!-- Card 3 - Infra Leads -->
+                        <div class="bg-gray-50 rounded-2xl p-6 sm:p-8 border border-gray-100 float-card">
+                            <!-- Icon -->
+                            <div class="w-12 h-12 mb-5 flex items-center justify-center">
+                                <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                                    </path>
+                                </svg>
+                            </div>
+
+                            <!-- Content -->
+                            <h3 class="text-xl font-semibold text-gray-800 mb-3">Certified Cybersecurity Professional
+                                (CCP)
+                            </h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                An advanced cybersecurity program covering offensive, defensive, and cloud security with
+                                real-world use cases..
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================ -->
+            <!-- SECTION 3: Proactive Threat Protection -->
+            <!-- ============================================ -->
+            <section class="relative w-full py-16 md:py-24 lg:py-28
+         bg-cover bg-center bg-no-repeat" style="background-image: url('/img/network.jpg');">
+
+                <!-- Overlay (behind content, non-blocking) -->
+                <div class="absolute inset-0 bg-black/60 pointer-events-none z-0"></div>
+
+                <!-- Content Wrapper -->
+                <div class="relative z-20 max-w-7xl mx-auto px-6">
+
+                    <!-- Section Header -->
+                    <div class="max-w-2xl mb-12 md:mb-16">
+                        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
+                            Stay Ahead of Every Security Challenge
+                        </h2>
+                        <p class="text-base text-gray-300 leading-relaxed">
+                            Our cybersecurity solutions are designed to detect, prevent, and respond to
+                            modern threats with speed, intelligence, and precision.
+                        </p>
+                    </div>
+
+                    <!-- Cards Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+
+                        <!-- Card 1 -->
+                        <div class="bg-[#0f1623] rounded-2xl shadow-lg
+                  transition-transform duration-300 hover:-translate-y-3">
+                            <div class="p-6 sm:p-8">
+                                <h3 class="text-xl font-semibold text-white mb-3">
+                                    Accelerate Threat Detection & Response
+                                </h3>
+                                <p class="text-sm text-gray-400 leading-relaxed">
+                                    Leverage AI-powered analytics to detect threats in real time. Automate
+                                    response workflows, reduce SOC workload, and strengthen your security
+                                    posture across endpoints, networks, and applications.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="bg-[#0f1623] rounded-2xl shadow-lg
+                  transition-transform duration-300 hover:-translate-y-3">
+                            <div class="p-6 sm:p-8">
+                                <h3 class="text-xl font-semibold text-white mb-3">
+                                    Secure Hybrid & Multi-Cloud Environments
+                                </h3>
+                                <p class="text-sm text-gray-400 leading-relaxed">
+                                    Protect cloud workloads with consistent security policies across hybrid
+                                    and multi-cloud architectures. Gain visibility, enforce compliance, and
+                                    scale protection as your infrastructure grows.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+            <!-- ============================================ -->
+            <!-- SECTION 4: Industry-Specific Security -->
+            <!-- ============================================ -->
+            <section class="w-full bg-[#0f1623] py-16 md:py-24 lg:py-28">
+                <div class="max-w-[1200px] mx-auto px-6 sm:px-8 md:px-12">
+
+                    <!-- Section Header -->
+                    <div class="max-w-2xl mb-12 md:mb-16">
+                        <h2 class="text-3xl sm:text-4xl font-bold text-gray-100 leading-tight mb-5">
+                            Learn Cybersecurity. Build Real Skills.
+                        </h2>
+                        <p class="text-base text-gray-400 leading-relaxed">
+                            Codevirus Security Academy provides practical cybersecurity training and internships focused
+                            on
+                            real-world skills.
+                            Learn Ethical Hacking, SOC, SIEM, Cloud & Network Security through hands-on labs and
+                            industry-aligned programs.
+                            For enterprise cybersecurity services, visit Codevirus Security Private Limited.
+                        </p>
+                    </div>
+
+                    <!-- Two-Column Layout -->
+                    <div class="flex flex-col lg:flex-row gap-8 md:gap-12">
+
+                        <!-- Left Column - Feature Image -->
+                        <div class="w-full lg:w-1/2">
+                            <div class="rounded-2xl overflow-hidden h-full min-h-[400px]">
+                                <img src="https://imgs.search.brave.com/OYDxTsP19Tmb95EixWX42JOgiOeDP-1DVb5XzdAv6x4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzE0LzMxLzgyLzM1/LzM2MF9GXzE0MzE4/MjM1NjVfMzE2c3Z6/aU1vQUZ1S3dGU0Zh/ck5FY05pVjY5eVRn/QmEuanBn"
+                                    alt="Industry Security Solutions" class="w-full h-full object-cover" loading="lazy">
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Industry List -->
+                        <div class="w-full lg:w-1/2 flex flex-col justify-center">
+
+                            <!-- Healthcare -->
+                            <div class="py-6 border-b border-gray-200">
+                                <h3 class="text-xl font-semibold text-gray-100 mb-2">Healthcare</h3>
+                                <p class="text-sm text-gray-400 leading-relaxed">
+                                    Protect patient data and medical devices while meeting stringent healthcare
+                                    regulations.
+                                    HIPAA-compliant security solutions tailored for modern healthcare environments.
+                                </p>
+                            </div>
+
+                            <!-- Automotive -->
+                            <div class="py-6 border-b border-gray-200">
+                                <h3 class="text-xl font-semibold text-gray-100 mb-2">Automotive</h3>
+                                <p class="text-sm text-gray-400 leading-relaxed">
+                                    Future-ready vehicle and mobility security with proven threat protection. Secure
+                                    connected vehicles and manufacturing systems against evolving cyber threats.
+                                </p>
+                            </div>
+
+                            <!-- Manufacturing -->
+                            <div class="py-6">
+                                <h3 class="text-xl font-semibold text-gray-100 mb-2">Manufacturing</h3>
+                                <p class="text-sm text-gray-400 leading-relaxed">
+                                    Secure factory environments from legacy systems to modern smart infrastructure.
+                                    Protect
+                                    OT networks and industrial control systems with specialized solutions.
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- ============================================ -->
+            <!-- SECTION 5: Insights and Analysis -->
+            <!-- ============================================ -->
+            <section class="relative light-blue-gradient w-full py-16 md:py-24 lg:py-28
+         bg-cover bg-center bg-no-repeat" style="background-image: url('/img/blue.jpg');">
+
+                <!-- Dark Overlay -->
+                <div class="absolute inset-0 bg-black/60 z-0"></div>
+
+                <!--  Content Wrapper (kept above overlay) -->
+                <div class="relative z-10 max-w-[1000px] mx-auto px-6 sm:px-8 md:px-12">
+                    <!-- Section Header -->
+                    <div class="max-w-2xl mb-12 md:mb-16">
+                        <h2 class="text-3xl sm:text-4xl font-bold text-white leading-tight mb-5">
+                            Cybersecurity Insights & Research Hub
+                        </h2>
+                        <p class="text-base text-gray-300 leading-relaxed">
+                            Practical cybersecurity insights, real-world threat analysis, and research-backed reports by
+                            Codevirus Security experts.
+                            Stay updated with evolving cyber threats, defense strategies, and future-ready security
+                            trends.
+                        </p>
+                    </div>
+
+                    <!-- Article Cards -->
+                    <div class="space-y-6">
+
+                        <!-- Article 1 -->
+                        <div class="bg-[#0f1623] rounded-2xl overflow-hidden shadow-sm float-card">
+                            <div class="flex flex-col md:flex-row">
+                                <!-- Article Image -->
+                                <div class="w-full md:w-2/5 aspect-video md:aspect-auto">
+                                    <img src="https://imgs.search.brave.com/6huiDM_k9tphshJB-wLZF-BWNNKVETOJoKuMgr1xT48/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9lZGdl/LnNpdGVjb3JlY2xv/dWQuaW8va3JvbGxs/bGMxN2JmMC1rcm9s/bDZmZWUtcHJvZGE0/NjQtMGU5Yi9tZWRp/YS9Lcm9sbC1JbWFn/ZXMvSW5zaWdodHMv/UTItMjAyNC1UaHJl/YXQtTGFuZHNjYXBl/LVJlcG9ydC9vcGVu/Z3JhcGgucG5nP2g9/NjMwJmlhcj0wJnc9/MTIwMA"
+                                        alt="DDoS Attack Analysis" class="w-full h-full object-cover min-h-[200px]"
+                                        loading="lazy">
+                                </div>
+
+                                <!-- Article Content -->
+                                <div class="w-full md:w-3/5 p-6 sm:p-8 flex flex-col justify-center">
+                                    <span
+                                        class="inline-block bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded-full mb-4 w-fit">
+                                        Reports
+                                    </span>
+                                    <h3 class="text-lg md:text-xl font-semibold text-gray-100 mb-3">
+                                        Cyber Threat Landscape Report – 2025
+                                    </h3>
+                                    <p class="text-sm text-gray-400 leading-relaxed mb-4">
+                                        An in-depth analysis of emerging cyber threats, attack vectors, and risk
+                                        patterns
+                                        affecting enterprises, governments, and educational institutions.
+                                    </p>
+                                    <div class="text-xs text-gray-400">
+                                        <span class="font-medium text-gray-600">Sarah Chen</span> · March 15, 2025
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Article 2 -->
+                        <div class="bg-[#0f1623] rounded-2xl overflow-hidden shadow-sm float-card">
+                            <div class="flex flex-col md:flex-row">
+                                <!-- Article Image -->
+                                <div class="w-full md:w-2/5 aspect-video md:aspect-auto">
+                                    <img src="https://imgs.search.brave.com/FChQTc7pEHYwV2IMuT_Z94QeIw45sMGt6fpZfqfG2f8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzE2Lzk5Lzg5LzA3/LzM2MF9GXzE2OTk4/OTA3MTNfWklNOVcx/d3NJaHR1QmRmQmNt/RVdWTUVpYlM4MWU1/V0ouanBn"
+                                        alt="Quantum Computing Security"
+                                        class="w-full h-full object-cover min-h-[200px]" loading="lazy">
+                                </div>
+
+                                <!-- Article Content -->
+                                <div class="w-full md:w-3/5 p-6 sm:p-8 flex flex-col justify-center">
+                                    <span
+                                        class="inline-block bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded-full mb-4 w-fit">
+                                        Reports
+                                    </span>
+                                    <h3 class="text-lg md:text-xl font-semibold text-gray-100 mb-3">
+                                        The Rising Threat of DDoS Attacks on Modern Networks
+                                    </h3>
+                                    <p class="text-sm text-gray-400 leading-relaxed mb-4">
+                                        A practical study of volumetric, protocol, and application-layer DDoS attacks
+                                        with
+                                        real-world mitigation strategies.
+                                    </p>
+                                    <div class="text-xs text-gray-400">
+                                        <span class="font-medium text-gray-600">Dr. Michael Torres</span> · March 8,
+                                        2025
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- CTA Button -->
+                    <div class="text-center mt-10 md:mt-14">
+                        <a href="/resources"
+                            class="inline-flex items-center btn-gradient text-white font-semibold text-base px-7 py-3.5 rounded-full transition-all duration-200 shadow-lg shadow-green-500/25 hover:shadow-xl">
+                            Explore All Resources
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================ -->
+            <!-- SECTION 6: Testimonials and Trust -->
+            <!-- ============================================ -->
+            <section class="w-full bg-[#0f1623] py-16 md:py-24 lg:py-28">
+                <div class="max-w-[1200px] mx-auto px-6 sm:px-8 md:px-12">
+
+                    <!-- Section Header -->
+                    <div class="max-w-2xl mb-12 md:mb-16
+            bg-black/50 backdrop-blur-md
+            rounded-2xl p-6 sm:p-8
+            text-white">
+                        <h2 class="text-3xl sm:text-4xl font-bold text-gray-100 leading-tight mb-5">
+                            Build real cybersecurity skills. Learn from real industry experts.
+                        </h2>
+                        <p class="text-base text-gray-300 leading-relaxed">
+                            Codevirus Security Academy stands apart by offering real-world cybersecurity training led by
+                            industry experts actively working on live security projects. Our hands-on approach,
+                            practical
+                            labs, and industry-aligned curriculum prepare students to handle real cyber threats with
+                            confidence and professional expertise.
+                        </p>
+                    </div>
+
+                    <!-- Two-Column Layout -->
+                    <div class="flex flex-col lg:flex-row gap-8 md:gap-12 mb-16">
+
+                        <!-- Left Column - Testimonial Card -->
+                        <div class="w-full lg:w-1/2">
+                            <div
+                                class="bg-gray-50 rounded-2xl p-6 sm:p-8 md:p-10 h-full border border-gray-100 float-card">
+                                <!-- Company Logo -->
+                                <div class="mb-6">
+                                    <svg class="h-8 text-gray-400" viewBox="0 0 120 30" fill="currentColor">
+                                        <text x="0" y="22" font-family="Inter, sans-serif" font-weight="700"
+                                            font-size="16">Founder's Voice</text>
+                                    </svg>
+                                </div>
+
+                                <!-- Quote -->
+                                <blockquote class="text-lg md:text-xl text-gray-700 leading-relaxed mb-8">
+                                    In my experience of working closely with students, professionals, and communities
+                                    across
+                                    India, I have witnessed a powerful transformation — technology reaching every corner
+                                    of
+                                    our nation. Yet, our awareness about cyber safety and digital responsibility still
+                                    lags
+                                    behind this progress.
+
+                                    This is where Digital Yodha Foundation takes its stand. Our goal is to empower every
+                                    citizen — from cities to rural villages — with the knowledge, tools, and confidence
+                                    to
+                                    navigate the digital world safely.</br></br>
+
+                                    “I believe that true digital empowerment begins with awareness. Together, we can
+                                    build a
+                                    cyber-safe, informed, and resilient India.”
+                                </blockquote>
+
+                                <!-- Author -->
+                                <div>
+                                    <p class="font-semibold text-gray-900">Ankit Rai</p>
+                                    <p class="text-sm text-gray-400">Founder, Codevirus</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Image -->
+                        <div class="w-full lg:w-1/2">
+                            <div class="rounded-2xl overflow-hidden h-full min-h-[400px]">
+                                <img src="./img/lead.jpeg">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Client Logos -->
+                    <div class="border-t border-gray-900 pt-12">
+                        <p class="text-center text-sm text-gray-500 mb-8">Trusted by leading organizations worldwide</p>
+                        <div class="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-50 grayscale">
+                            <svg class="h-8" viewBox="0 0 100 30" fill="currentColor">
+                                <text x="0" y="22" font-family="Inter, sans-serif" font-weight="600" font-size="16"
+                                    fill="#888">Microsoft</text>
+                            </svg>
+                            <svg class="h-8" viewBox="0 0 80 30" fill="currentColor">
+                                <text x="0" y="22" font-family="Inter, sans-serif" font-weight="600" font-size="16"
+                                    fill="#888">Google</text>
+                            </svg>
+                            <svg class="h-8" viewBox="0 0 80 30" fill="currentColor">
+                                <text x="0" y="22" font-family="Inter, sans-serif" font-weight="600" font-size="16"
+                                    fill="#888">Amazon</text>
+                            </svg>
+                            <svg class="h-8" viewBox="0 0 60 30" fill="currentColor">
+                                <text x="0" y="22" font-family="Inter, sans-serif" font-weight="600" font-size="16"
+                                    fill="#888">Meta</text>
+                            </svg>
+                            <svg class="h-8" viewBox="0 0 80 30" fill="currentColor">
+                                <text x="0" y="22" font-family="Inter, sans-serif" font-weight="600" font-size="16"
+                                    fill="#888">Salesforce</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================ -->
+            <!-- SECTION 7: FAQ Section -->
+            <!-- ============================================ -->
+            <section class="w-full bg-gradient-to-b from-[#020617] to-[#0b1220] py-20">
+                <div class="max-w-3xl mx-auto px-6">
+
+                    <!-- Header -->
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-3">
+                        Frequently Asked Questions
+                    </h2>
+                    <p class="text-gray-400 mb-10">
+                        Answers to common questions about Codevirus Security Academy
+                    </p>
+
+                    <!-- FAQ LIST -->
+                    <div class="space-y-4">
+
+                        <!-- FAQ 1 -->
+                        <div class="faq-item border border-white/10 rounded-xl bg-[#0b1220] overflow-hidden">
+                            <button
+                                class="faq-question w-full flex justify-between items-center px-6 py-5 text-left text-white">
+                                <span>What is Codevirus Security Academy?</span>
+                                <span class="faq-icon text-blue-400 text-xl">+</span>
+                            </button>
+                            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+                                <div class="px-6 pb-6 text-gray-300">
+                                    Codevirus Security Academy is a professional training institute focused on
+                                    cybersecurity,
+                                    ethical hacking, cloud security, SOC, and real-world industry skills.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ 2 -->
+                        <div class="faq-item border border-white/10 rounded-xl bg-[#0b1220] overflow-hidden">
+                            <button
+                                class="faq-question w-full flex justify-between items-center px-6 py-5 text-left text-white">
+                                <span>Who can join the academy?</span>
+                                <span class="faq-icon text-blue-400 text-xl">+</span>
+                            </button>
+                            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+                                <div class="px-6 pb-6 text-gray-300">
+                                    Students from BCA, BTech, MCA, Diploma backgrounds and working professionals
+                                    interested in cybersecurity can join.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ 3 -->
+                        <div class="faq-item border border-white/10 rounded-xl bg-[#0b1220] overflow-hidden">
+                            <button
+                                class="faq-question w-full flex justify-between items-center px-6 py-5 text-left text-white">
+                                <span>Do I need prior technical knowledge?</span>
+                                <span class="faq-icon text-blue-400 text-xl">+</span>
+                            </button>
+                            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+                                <div class="px-6 pb-6 text-gray-300">
+                                    No. Basic computer knowledge is enough. We start from fundamentals and
+                                    gradually move to advanced concepts.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ 4 -->
+                        <div class="faq-item border border-white/10 rounded-xl bg-[#0b1220] overflow-hidden">
+                            <button
+                                class="faq-question w-full flex justify-between items-center px-6 py-5 text-left text-white">
+                                <span>Are the courses beginner-friendly?</span>
+                                <span class="faq-icon text-blue-400 text-xl">+</span>
+                            </button>
+                            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+                                <div class="px-6 pb-6 text-gray-300">
+                                    Yes. All courses are designed with a step-by-step learning approach suitable
+                                    for beginners and intermediate learners.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ 5 -->
+                        <div class="faq-item border border-white/10 rounded-xl bg-[#0b1220] overflow-hidden">
+                            <button
+                                class="faq-question w-full flex justify-between items-center px-6 py-5 text-left text-white">
+                                <span>What modes of training are available?</span>
+                                <span class="faq-icon text-blue-400 text-xl">+</span>
+                            </button>
+                            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+                                <div class="px-6 pb-6 text-gray-300">
+                                    We offer online live training, offline classroom training,
+                                    and hybrid modes depending on the course.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ 6 -->
+                        <div class="faq-item border border-white/10 rounded-xl bg-[#0b1220] overflow-hidden">
+                            <button
+                                class="faq-question w-full flex justify-between items-center px-6 py-5 text-left text-white">
+                                <span>Do you provide practical hands-on training?</span>
+                                <span class="faq-icon text-blue-400 text-xl">+</span>
+                            </button>
+                            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+                                <div class="px-6 pb-6 text-gray-300">
+                                    Yes. Training focuses heavily on hands-on labs,
+                                    real-world scenarios, and industry tools.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ 7 -->
+                        <div class="faq-item border border-white/10 rounded-xl bg-[#0b1220] overflow-hidden">
+                            <button
+                                class="faq-question w-full flex justify-between items-center px-6 py-5 text-left text-white">
+                                <span>Will I get a certificate after completion?</span>
+                                <span class="faq-icon text-blue-400 text-xl">+</span>
+                            </button>
+                            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+                                <div class="px-6 pb-6 text-gray-300">
+                                    Yes. Students receive an industry-recognized
+                                    course completion certificate.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ 8 -->
+                        <div class="faq-item border border-white/10 rounded-xl bg-[#0b1220] overflow-hidden">
+                            <button
+                                class="faq-question w-full flex justify-between items-center px-6 py-5 text-left text-white">
+                                <span>Are internships provided?</span>
+                                <span class="faq-icon text-blue-400 text-xl">+</span>
+                            </button>
+                            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+                                <div class="px-6 pb-6 text-gray-300">
+                                    Yes. Selected courses include internship opportunities
+                                    with practical projects and mentorship.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ 9 -->
+                        <div class="faq-item border border-white/10 rounded-xl bg-[#0b1220] overflow-hidden">
+                            <button
+                                class="faq-question w-full flex justify-between items-center px-6 py-5 text-left text-white">
+                                <span>Are projects included in the courses?</span>
+                                <span class="faq-icon text-blue-400 text-xl">+</span>
+                            </button>
+                            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+                                <div class="px-6 pb-6 text-gray-300">
+                                    Yes. Every major course includes real-time
+                                    projects aligned with industry requirements.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ 10 -->
+                        <div class="faq-item border border-white/10 rounded-xl bg-[#0b1220] overflow-hidden">
+                            <button
+                                class="faq-question w-full flex justify-between items-center px-6 py-5 text-left text-white">
+                                <span>Do you provide placement assistance?</span>
+                                <span class="faq-icon text-blue-400 text-xl">+</span>
+                            </button>
+                            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+                                <div class="px-6 pb-6 text-gray-300">
+                                    Yes. We provide career guidance, resume support,
+                                    and placement assistance for selected programs.
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+
+
+
+            <!-- ============================================ -->
+            <!-- SECTION 9: Final CTA Section -->
+            <!-- ============================================ -->
+            <section class="relative light-blue-gradient w-full py-16 md:py-24 lg:py-28
+         bg-cover bg-center bg-no-repeat" style="background-image: url('/img/aboutus1.jpg');">
+
+                <!--  Dark Overlay -->
+                <div class="absolute inset-0 bg-black/60 z-0"></div>
+                <div class="absolute inset-0 bg-black/60 z-0"></div>
+                <!--  Content Wrapper -->
+                <div class="relative z-10 max-w-[1100px] mx-auto px-6 sm:px-8 md:px-12">
+
+                    <!-- Main Heading & Description -->
+                    <div class="max-w-2xl mb-12 md:mb-16
+                bg-black/50 backdrop-blur-md
+                rounded-2xl p-6 sm:p-8
+                text-white">
+
+                        <h2
+                            class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-100 leading-tight mb-5 md:mb-6">
+                            Start Your Journey<br>
+                            with Codevirus Today
+                        </h2>
+
+                        <p class="text-base text-gray-300 max-w-lg leading-relaxed">
+                            Begin your journey with Codevirus today and discover how our solutions
+                            can enhance your business's security and efficiency.
+                        </p>
+
+                    </div>
+
+                    <!-- CTA Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+
+                        <!-- CTA Card 1 - Contact Team -->
+                        <div class="bg-[#0f1623] rounded-2xl overflow-hidden shadow-sm float-card p-6 sm:p-8 shadow-sm">
+                            <h3 class="text-lg md:text-xl font-semibold text-gray-100 mb-3 md:mb-4">
+                                Get in Touch with Our Team
+                            </h3>
+                            <p class="text-sm md:text-base text-gray-400 mb-6 leading-relaxed">
+                                Let's discuss how Codevirus can secure your business, enabling it to scale quickly and
+                                effectively.
+                            </p>
+                            <a href="/contact"
+                                class="inline-flex items-center btn-gradient text-white font-medium text-sm md:text-base px-5 md:px-6 py-2.5 md:py-3 rounded-full transition-all duration-200">
+                                Contact Us
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7">
+                                    </path>
+                                </svg>
+                            </a>
+                        </div>
+                        <!-- CTA Card 2 - Free Trial -->
+                        <div class="bg-[#0f1623] rounded-2xl overflow-hidden shadow-sm float-card p-6 sm:p-8 shadow-sm">
+                            <h3 class="text-lg md:text-xl font-semibold text-gray-100 mb-3 md:mb-4">
+                                Enjoy Free Trial of Our Services
+                            </h3>
+                            <p class="text-sm md:text-base text-gray-500 mb-6 leading-relaxed">
+                                Experience it for yourself and witness the transformative difference one platform can
+                                make
+                                in your business.
+                            </p>
+                            <a href="#pricing"
+                                class="inline-flex items-center btn-gradient text-white font-medium text-sm md:text-base px-5 md:px-6 py-2.5 md:py-3 rounded-full transition-all duration-200">
+                                Check pricing
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7">
+                                    </path>
+                                </svg>
+                            </a>
+                            </svg>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+            <%- include('includes/footer.ejs') %>
+
+
+                <!-- FAQ SCRIPT -->
+                <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+                        const items = document.querySelectorAll(".faq-item");
+
+                        items.forEach(item => {
+                            item.querySelector(".faq-question").addEventListener("click", () => {
+                                const isOpen = item.classList.contains("active");
+                                items.forEach(i => i.classList.remove("active"));
+                                if (!isOpen) item.classList.add("active");
+                            });
+                        });
+                    });
+                </script>
+
+                <!-- Cursor Glow -->
+                <script>
+                    const cursorGlow = document.getElementById("cursor-glow");
+
+                    document.addEventListener("mousemove", (e) => {
+                        cursorGlow.style.left = e.clientX + "px";
+                        cursorGlow.style.top = e.clientY + "px";
+                        cursorGlow.style.opacity = "1";
+                    });
+
+                    document.addEventListener("mouseleave", () => {
+                        cursorGlow.style.opacity = "0";
+                    });
+                </script>
+
+        </body>
+
+</html>

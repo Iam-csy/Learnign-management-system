@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", Arial, sans-serif;
+      background: linear-gradient(135deg, #020617, #020617, #020617);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      padding: 40px 25px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 50px;
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px;
+    }
+
+    .card {
+      background: #ffffff;
+      color: #020617;
+      padding: 35px 30px;
+      border-radius: 18px;
+      text-decoration: none;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+    }
+
+    .card h2 {
+      margin: 0 0 12px 0;
+      font-size: 1.3rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: #475569;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .icon {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.7rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  
+  <div class="container">
+
+    <h1>Admin Dashboard</h1>
+
+    <div class="grid">
+
+      <a href="/admin/users" class="card">
+        <span class="icon">👤</span>
+        <h2>Users</h2>
+        <p>View and manage all registered users.</p>
+      </a>
+
+      <a href="/admin/courses" class="card">
+        <span class="icon">📘</span>
+        <h2>Courses</h2>
+        <p>Create, edit, and manage course content.</p>
+      </a>
+
+      <a href="/admin/teachers" class="card">
+        <span class="icon">✔</span>
+        <h2>Teachers</h2>
+        <p>Approve and manage instructor accounts.</p>
+      </a>
+
+    </div>
+
+  </div>
+
+</body>
+</html>

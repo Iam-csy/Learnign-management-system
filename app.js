@@ -1,0 +1,793 @@
+require("dotenv").config();
+
+const express = require("express");
+const app = express();
+app.disable("x-powered-by");
+const path = require("path");
+const session = require("express-session");
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const http = require("http");
+const { Server } = require("socket.io");
+const rateLimit = require("express-rate-limit");
+const axios = require("axios");
+const nodemailer = require("nodemailer");
+
+const slowDown = require("express-slow-down");
+const crypto = require("crypto");
+
+
+
+
+
+const methodOverride = require("method-override");
+
+app.use(methodOverride("_method"));
+
+
+
+// == MODELS ==
+const User = require("./models/user");
+const Review = require("./models/review");
+const Course = require("./models/course");
+const Lesson = require("./models/lesson");
+const LiveClass = require("./models/liveClass");
+const Teacher = require("./models/teacher");
+
+// === UTILS 
+const wrapAsync = require("./utils/wrapAsync");
+const ExpressError = require("./utils/ExpressError");
+const { reviewSchema } = require("./schema");
+const { appendFile } = require("fs/promises");
+const passport = require("passport");
+
+//mongodb+srv://csyadav02002_db_user:Yjp3mBG3RP8zwSEy@cluster0.fnffzbj.mongodb.net/?appName=Cluster0
+mongoose
+  .connect(process.env.MONGO_URL)
+  .then(() => {
+    console.log("MongoDB Connected");
+
+ 
+    setInterval(async () => {
+      try {
+        const result = await User.deleteMany({
+          isVerified: false,
+          emailTokenExpiry: { $lt: Date.now() }
+        });
+
+        if (result.deletedCount > 0) {
+          console.log(`🧹 Removed ${result.deletedCount} unverified users`);
+        }
+      } catch (err) {
+        console.error("Cleanup error:", err);
+      }
+    }, 2 * 60 * 1000); 
+  })
+  .catch(err => console.error("MongoDB error:", err));
+
+// ==APP CONFIG 
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json({ limit: "100kb" }));
+app.use(express.urlencoded({ extended: true, limit: "100kb" }));
+
+const loginLimiter = slowDown({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  delayAfter: 3,
+  delayMs: (used, req) => {
+    const delayAfter = req.slowDown.limit;
+    return (used - delayAfter) * 1000; 
+  }
+});
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+});
+
+async function sendEmail(to, subject, html) {
+  await transporter.sendMail({
+    from: `"Codevirus" <${process.env.EMAIL_USER}>`,
+    to: to,          
+    subject: subject, 
+    html: html
+  });
+}
+
+
+
+const validateReview = (req, _res, next) => {
+  const { error } = reviewSchema.validate(req.body);
+  if (error) {
+    throw new ExpressError(
+      400,
+      error.details.map(e => e.message).join(", ")
+    );
+  }
+  next();
+};
+
+const MongoStore = require("connect-mongo").default;
+
+app.use(
+  session({
+    name: "codevirus.sid",
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+
+    store: new MongoStore({
+      mongoUrl: process.env.MONGO_URL,
+      collectionName: "sessions"
+    }),
+
+    cookie: {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "lax"
+    }
+  })
+);
+
+
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  next();
+});
+
+// === ROLE CHECKS 
+function isLoggedIn(req, res, next) {
+  if (!req.session.user) {
+    return res.redirect("/home/login");
+  }
+  next();
+}
+
+function isTeacher(req, res, next) {
+  if (!req.session.user || req.session.user.role !== "teacher") {
+    return res.status(403).render("error", {
+      message: "Access denied"
+    });
+  }
+  next();
+}
+
+function isAdmin(req, res, next) {
+  if (!req.session.user || req.session.user.role !== "admin") {
+    return res.status(403).render("error", {
+      message: "Access denied"
+    });
+  }
+  next();
+}
+
+async function verifyRecaptcha(token) {
+  const response = await axios.post(
+    "https://www.google.com/recaptcha/api/siteverify",
+    null,
+    {
+      params: {
+        secret: process.env.RECAPTCHA_SECRET,
+        response: token
+      }
+    }
+  );
+  return response.data.success;
+}
+
+
+app.get("/resources", (req, res) => res.render("resources"));
+app.get("/contact", (req, res) => res.render("contact"));
+app.get("/", (req, res) => res.redirect("/home"));
+app.get("/home", (req, res) => res.render("home"));
+app.get("/home/aboutus", (req, res) => res.render("aboutus"));
+
+
+app.get("/home/cookies", (req, res) => res.render("cookies"));
+app.get("/home/refund", (req, res) => res.render("refund"));
+app.get("/home/privicy", (req, res) => res.render("privicy"));
+
+
+app.get("/home/course", wrapAsync(async (req, res) => {
+  const AllCourses = await Course.find({});
+  res.render("course", { AllCourses });
+}));
+
+app.get("/notes", (req, res) => res.render("notes"));
+app.get("/home/login", (req, res) => res.render("login"));
+
+app.get("/home/signup", (req, res) => res.render("signup"));
+app.get("/home/terms", (req, res) => res.render("terms"));
+
+
+
+// ratelimiter in login
+const authLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 100,
+  message: "Too many attempts, try later",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+
+
+
+
+// REGISTER
+app.post(
+  "/register",
+  loginLimiter,
+  authLimiter,
+  wrapAsync(async (req, res) => {
+
+    const captchaToken = req.body["g-recaptcha-response"];
+    if (!captchaToken || !(await verifyRecaptcha(captchaToken))) {
+      throw new ExpressError(400, "CAPTCHA verification failed");
+    }
+
+    const { username, email, password } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      throw new ExpressError(409, "User already exists");
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    const emailToken = crypto.randomBytes(32).toString("hex");
+
+    const user = new User({
+      username,
+      email,
+      password: hash,
+      isVerified: false,
+      emailToken,
+      emailTokenExpiry: Date.now() + 24 * 60 * 60 * 1000
+    });
+
+    await user.save();
+
+    const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${emailToken}`;
+
+
+    await sendEmail(
+      email,
+      "Verify your CodeVirus account",
+      `
+        <h2>Email Verification</h2>
+        <p>Hello ${username}</p>
+        <p>Click the button below to verify your email</p>
+        <a href="${verifyLink}"
+           style="padding:10px 15px;background:#4f46e5;color:white;text-decoration:none;">
+           Verify Email
+        </a>
+        <p>Link expires in 24 hours</p>
+      `
+    );
+
+    res.send("Registration successful. Please check your email to verify your account.");
+
+  })
+);
+app.get("/home/animation", (req, res) => {
+  res.render("animation");
+});
+
+app.get("/verify-email/:token", async (req, res) => {
+  const user = await User.findOne({
+    emailToken: req.params.token,
+    emailTokenExpiry: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    return res.status(400).send("Invalid or expired token");
+  }
+
+  user.isVerified = true;
+  user.emailToken = undefined;
+  user.emailTokenExpiry = undefined;
+  await user.save();
+
+  
+  req.session.user = {
+    _id: user._id,
+    username: user.username,
+    email: user.email,
+    role: user.role
+  };
+
+  req.session.save(() => {
+    res.redirect("/home"); // or dashboard
+  });
+});
+
+
+app.post(
+  "/login",
+  authLimiter,
+  loginLimiter,
+  wrapAsync(async (req, res) => {
+
+   
+    const captchaToken = req.body["g-recaptcha-response"];
+    if (!captchaToken || !(await verifyRecaptcha(captchaToken))) {
+      return res.render("login", {
+        error: "CAPTCHA verification failed",
+        recaptchaSiteKey: process.env.RECAPTCHA_SITE
+      });
+    }
+
+    const { email, password } = req.body;
+
+  
+    if (!email || !password) {
+      return res.render("login", {
+        error: "Email and password are required",
+        recaptchaSiteKey: process.env.RECAPTCHA_SITE
+      });
+    }
+
+   
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.render("login", {
+        error: "Invalid email or password",
+        recaptchaSiteKey: process.env.RECAPTCHA_SITE
+      });
+    }
+
+    
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.render("login", {
+        error: "Invalid email or password",
+        recaptchaSiteKey: process.env.RECAPTCHA_SITE
+      });
+    }
+
+    
+    if (!user.isVerified) {
+      return res.render("login", {
+        error: "Please verify your email before logging in",
+        recaptchaSiteKey: process.env.RECAPTCHA_SITE
+      });
+    }
+
+    
+    req.session.userId = user._id;
+    req.session.user = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role
+    };
+
+    
+    req.session.save(err => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.render("login", {
+          error: "Something went wrong. Try again.",
+          recaptchaSiteKey: process.env.RECAPTCHA_SITE
+        });
+      }
+      res.redirect("/home");
+    });
+
+  })
+);
+
+
+
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/home");
+});
+
+
+// === COURSE VIEW 
+app.get("/home/:id", wrapAsync(async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).render("error", { message: "Invalid Course URL" });
+  }
+
+  const course = await Course.findById(req.params.id).populate({
+    path: "reviews",
+    populate: { path: "author" }
+  });
+
+  if (!course) throw new ExpressError(404, "Course not found");
+  res.render("viewcourse", { course });
+}));
+
+// === BUY COURSE 
+app.post("/courses/:id/buy", wrapAsync(async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/home/login");
+  }
+
+  const course = await Course.findById(req.params.id);
+  if (!course) {
+    throw new ExpressError(404, "Course not found");
+  }
+
+  const user = await User.findById(req.session.user._id);
+
+  const alreadyBought = user.boughtCourses.some(courseId =>
+    courseId.equals(course._id)
+  );
+
+  if (!alreadyBought) {
+    user.boughtCourses.push(course._id);
+    await user.save();
+
+    // 🔑 keep session in sync
+    req.session.user = user;
+  }
+
+  res.redirect("/afterbuy");
+}));
+
+app.get("/certificate/:id", wrapAsync(async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/home/login");
+  }
+
+  const course = await Course.findById(req.params.id);
+  if (!course) {
+    throw new ExpressError(404, "Course not found");
+  }
+
+  const user = await User.findById(req.session.user._id);
+
+  const hasBought = user.boughtCourses.some(courseId =>
+    courseId.equals(course._id)
+  );
+
+  if (!hasBought) {
+    throw new ExpressError(403, "You are not allowed to access this certificate");
+  }
+
+  res.render("certificate", {
+    course,
+    student: user
+  });
+}));
+
+
+// == INSIDE COURSE 
+app.get("/insidecourse/:id", wrapAsync(async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).render("error", { message: "Invalid Course URL" });
+  }
+
+  if (!req.session.user) return res.redirect("/home/login");
+
+  const course = await Course.findById(req.params.id);
+  if (!course) throw new ExpressError(404, "Course not found");
+
+  const lessons = await Lesson.find({ course: course._id }).sort({ order: 1 });
+
+  res.render("insidecourse", { course, lessons });
+}));
+
+
+// = REVIEWS 
+app.post(
+  "/courses/:id/reviews",
+  validateReview,
+  wrapAsync(async (req, res) => {
+    if (!req.session.user) return res.redirect("/home/login");
+
+    const course = await Course.findById(req.params.id);
+    const user = await User.findById(req.session.user._id);
+
+    const review = new Review(req.body.review);
+    review.author = user._id;
+
+    course.reviews.push(review);
+    await review.save();
+    await course.save();
+
+    res.redirect(`/home/${course._id}`);
+  })
+);
+
+
+// ================= LIVE CLASS ==========
+app.post("/course/:id/start-live", wrapAsync(async (req, res) => {
+  if (!req.session.user) return res.redirect("/home/login");
+
+  const roomId = "live-" + Date.now();
+
+  const liveClass = new LiveClass({
+    course: req.params.id,
+    teacher: req.session.user._id,
+    roomId,
+    isLive: true,
+    startedAt: new Date()
+  });
+
+  await liveClass.save();
+  res.redirect(`/course/${req.params.id}/live`);
+}));
+
+app.get("/course/:id/live", wrapAsync(async (req, res) => {
+  const course = await Course.findById(req.params.id);
+  if (!course) throw new ExpressError(404, "Course not found");
+
+  const liveClass = await LiveClass.findOne({
+    course: course._id,
+    isLive: true
+  });
+
+  if (!liveClass) return res.send("Live class not started yet");
+  res.render("liveClass", { course, liveClass });
+}));
+// / ================= BECOME TEACHER =================
+app.get("/become-teacher", isLoggedIn, (req, res) => {
+  res.render("teacher/becomeTeacher");
+});
+
+app.post("/become-teacher", isLoggedIn, async (req, res) => {
+  const { bio, expertise, experience } = req.body;
+
+  const teacher = new Teacher({
+    user: req.session.user._id,
+    bio,
+    expertise: expertise.split(","),
+    experience
+  });
+
+  await teacher.save();
+  res.send("Teacher request sent. Wait for admin approval.");
+});
+
+// ================= ADMIN =================
+app.get("/admin/dashboard", isAdmin, (req, res) => {
+  res.render("admin/dashboard");
+});
+app.get("/admin/teachers", isAdmin, async (req, res) => {
+  const teachers = await Teacher.find({ approved: false })
+    .populate("user");
+
+  res.render("admin/teacherRequests", { teachers });
+});
+
+app.get("/admin/users", isAdmin, async (req, res) => {
+  const users = await User.find({});
+  res.render("admin/users", { users });
+});
+
+app.get("/admin/courses", isAdmin, async (req, res) => {
+  const courses = await Course.find({}).populate("teacher");
+  res.render("admin/courses", { courses });
+});
+
+app.post("/admin/teacher/approve/:id", isAdmin, async (req, res) => {
+  const teacher = await Teacher.findById(req.params.id);
+  teacher.approved = true;
+  await teacher.save();
+
+  await User.findByIdAndUpdate(teacher.user, { role: "teacher" });
+  res.redirect("/admin/teachers");
+});
+app.post("/admin/course/delete/:id", isAdmin, async (req, res) => {
+  await Course.findByIdAndDelete(req.params.id);
+
+  // optional: delete lessons also
+  await Lesson.deleteMany({ course: req.params.id });
+
+  res.redirect("/admin/dashboard");
+});
+
+
+
+// ================= TEACHER =================
+app.get("/teacher/dashboard", isTeacher, async (req, res) => {
+  const teacher = await Teacher.findOne({ user: req.session.user._id }).populate("user");
+  const courses = await Course.find({ teacher: teacher._id });
+  res.render("teacher/dashboard", { teacher, courses });
+});
+
+app.get("/teacher/course/new", isTeacher, (req, res) => {
+  res.render("teacher/newCourse");
+});
+
+app.post("/teacher/course/new", isTeacher, async (req, res) => {
+  const teacher = await Teacher.findOne({ user: req.session.user._id });
+
+  const course = new Course({
+    title: req.body.title,
+    description: req.body.description,
+    price: req.body.price,
+    thumbnail: req.body.thumbnail,
+    teacher: teacher._id
+  });
+
+  await course.save();
+  res.redirect("/teacher/dashboard");
+});
+
+app.get("/teacher/course/:id/lesson/new", isTeacher, async (req, res) => {
+  const course = await Course.findById(req.params.id);
+  res.render("teacher/newLesson", { course });
+});
+
+app.post("/teacher/course/:id/lesson/new", isTeacher, async (req, res) => {
+  const { title, videoUrl } = req.body;
+
+  const lessonCount = await Lesson.countDocuments({
+    course: req.params.id
+  });
+
+  const lesson = new Lesson({
+    title,
+    videoUrl,
+    order: lessonCount + 1,
+    course: req.params.id
+  });
+
+  await lesson.save();
+  res.redirect("/teacher/dashboard");
+});
+
+
+
+// ================= STUDENT =================
+app.get("/afterbuy", async (req, res) => {
+  if (!req.session.user) return res.redirect("/home/login");
+
+  const user = await User.findById(req.session.user._id).populate("boughtCourses");
+  const liveClasses = await LiveClass.find({ isLive: true });
+
+  res.render("afterBuy", { user, liveClasses });
+});
+
+
+// ================= ERRORS =================
+
+// 404 – Not Found
+app.use((req, res) => {
+  res.status(404).render("error", {
+    message: "Page Not Found"
+  });
+});
+
+// Global Error Handler (NO stack traces exposed)
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+
+  // Log full error only on server
+  console.error(err);
+
+  // Send safe message to user
+  res.status(statusCode).render("error", {
+    message: "Something went wrong. Please try again later."
+  });
+});
+
+// ================= SOCKET =================
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // change to your domain in production
+    methods: ["GET", "POST"]
+  },
+  pingTimeout: 20000,
+  pingInterval: 25000
+});
+
+// ================= SOCKET SECURITY LAYERS =================
+
+// 1️⃣ AUTH CHECK (VERY IMPORTANT)
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+
+  if (!token) {
+    console.log(" Socket rejected: No token");
+    return next(new Error("Unauthorized"));
+  }
+
+  // OPTIONAL: verify JWT / Clerk token here
+  // For now, token presence check is enough
+  next();
+});
+
+// 2️⃣ CONNECTION LIMIT (ANTI-FLOOD)
+const MAX_CONNECTIONS = 100;
+
+io.on("connection", (socket) => {
+
+  if (io.engine.clientsCount > MAX_CONNECTIONS) {
+    console.log("Too many socket connections");
+    socket.disconnect(true);
+    return;
+  }
+
+  console.log("✅ User connected:", socket.id);
+
+  // 3️⃣ RATE-LIMIT EVENTS (ANTI-SPAM)
+  let eventCount = 0;
+  const EVENT_LIMIT = 20;
+
+  const rateLimit = () => {
+    eventCount++;
+    if (eventCount > EVENT_LIMIT) {
+      console.log("Socket spam detected:", socket.id);
+      socket.disconnect(true);
+    }
+  };
+
+  // Reset counter every 10 seconds
+  const resetInterval = setInterval(() => {
+    eventCount = 0;
+  }, 10000);
+
+  // ================= SOCKET EVENTS =================
+
+  socket.on("join-room", (roomId) => {
+    rateLimit();
+
+    if (!roomId || typeof roomId !== "string") return;
+
+    socket.join(roomId);
+
+    socket.to(roomId).emit("user-joined", socket.id);
+
+    const count = io.sockets.adapter.rooms.get(roomId)?.size || 0;
+    io.to(roomId).emit("user-count", count);
+  });
+
+  socket.on("offer", ({ to, offer }) => {
+    rateLimit();
+    if (!to || !offer) return;
+
+    io.to(to).emit("offer", { from: socket.id, offer });
+  });
+
+  socket.on("answer", ({ to, answer }) => {
+    rateLimit();
+    if (!to || !answer) return;
+
+    io.to(to).emit("answer", { from: socket.id, answer });
+  });
+
+  socket.on("ice-candidate", ({ to, candidate }) => {
+    rateLimit();
+    if (!to || !candidate) return;
+
+    io.to(to).emit("ice-candidate", { from: socket.id, candidate });
+  });
+
+  socket.on("disconnect", () => {
+    clearInterval(resetInterval);
+    console.log("🔌 User disconnected:", socket.id);
+  });
+});
+
+port = process.env.PORT;
+// ================= SERVER =================
+function startServer() {
+  const server = app.listen(port, () => {
+    console.log(` Server running on port ${port}`);
+  });
+
+  server.on("error", (error) => {
+    console.error(" Failed to start server:", error.message);
+    process.exit(1);
+  });
+}
+
+startServer();

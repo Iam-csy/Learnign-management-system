@@ -41,7 +41,7 @@ const { reviewSchema } = require("./schema");
 const { appendFile } = require("fs/promises");
 const passport = require("passport");
 
-//mongodb+srv://csyadav02002_db_user:Yjp3mBG3RP8zwSEy@cluster0.fnffzbj.mongodb.net/?appName=Cluster0
+
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {
